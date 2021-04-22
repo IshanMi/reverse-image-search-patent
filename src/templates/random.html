@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link type="text/css" rel="stylesheet" href="../static/gradient_background.css">
+    <meta charset="UTF-8">
+    <title> Next-Gen Patent Search</title>
+</head>
+<body>
+
+<h1> Reverse Image Search for Patents! </h1>
+
+<p> "What remains of you is not what is etched into stone, but what is woven into the hearts of
+    Man." </p>
+
+<p> Here's a few random patents about {{ category }}s: </p>
+
+{% for p in patents  %}
+<div>
+<span class="title"> {{ p.patent_title }}</span>
+<span class="ID"> {{ p.appl_id }}</span>
+</div>
+{% endfor %}
+
+</body>
+</html>
