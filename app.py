@@ -40,17 +40,11 @@ def upload_file():
     return render_template('home.html')
 
 
+
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-@app.route('/random')
-def random_patent():
-    """ just for demonstration, will be changed"""
-    search_term = random.choice(["machine", "lens", "motor", "camera"])
-    patent_ids = conduct_search(search_term, limit=10)
-    return render_template('random.html', category=search_term, patents=patent_ids)
 
 
 @app.route("/search")
@@ -64,8 +58,10 @@ def patent_search(patent_title):
 
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
+
     return render_template('random.html', category=patent_title,
                            patents=conduct_search(patent_title, limit=10))
+
 
 
 if __name__ == '__main__':
