@@ -1,6 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
-from src.patent_fetcher import get_patent
-from patent_client import USApplication
+from src.patent_fetcher import conduct_search
 from werkzeug.utils import secure_filename
 import random
 import os
@@ -50,8 +49,7 @@ def uploaded_file(filename):
 def random_patent():
     """ just for demonstration, will be changed"""
     search_term = random.choice(["machine", "lens", "motor", "camera"])
-    patent_ids = USApplication.objects.filter(patent_title=search_term.upper())[:10]
-    print(search_term, patent_ids)
+    patent_ids = conduct_search(search_term, limit=10)
     return render_template('random.html', category=search_term, patents=patent_ids)
 
 
@@ -66,8 +64,8 @@ def patent_search(patent_title):
 
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
-
-    return get_patent(patent_title)
+    return render_template('random.html', category=patent_title,
+                           patents=conduct_search(patent_title, limit=10))
 
 
 if __name__ == '__main__':
