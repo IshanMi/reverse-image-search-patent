@@ -1,16 +1,17 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
-from patent_fetcher import get_patent
+from src.patent_fetcher import conduct_search
 from werkzeug.utils import secure_filename
 import random
-
+import os
 
 UPLOAD_FOLDER = "./uploads"
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='src/templates')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.static_folder = 'src/static'
 
 
 def allowed_file(filename: str):
@@ -36,40 +37,14 @@ def upload_file():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template('home.html')
+
+
 
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-
-@app.route('/')
-@app.route('/home')
-@app.route('/index')
-def load_background():
-    return render_template("background.html", title="Home")
-
-
-@app.route('/random')
-def random_patent():
-    """ just for demonstration, will be changed"""
-    search_term = random.choice(["machine", "lens", "motor", "camera"])
-    return get_patent(search_term)
-
-
-@app.route('/try')
-def testing():
-    return "Does this work?"
 
 
 @app.route("/search")
@@ -84,7 +59,9 @@ def patent_search(patent_title):
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
 
-    return get_patent(patent_title)
+    return render_template('random.html', category=patent_title,
+                           patents=conduct_search(patent_title, limit=10))
+
 
 
 if __name__ == '__main__':

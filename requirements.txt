@@ -1,0 +1,4 @@
+requests
+werkzeug
+flask
+patent_client
