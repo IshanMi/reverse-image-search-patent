@@ -1,6 +1,10 @@
-import requests
-from patent_client import USApplication
 from typing import List
+
+import requests
+import fitz
+from patent_client import USApplication
+from PIL import Image
+from io import BytesIO
 
 
 def get_patent(keyword: str):
@@ -25,13 +29,43 @@ def conduct_search(title: str, limit=100):
 
 def download_patents(patent_list: List[USApplication]):
     """ Download all the patent drawings that arose from the search to the downloads/folder"""
-    drawings_found = False  # Were any drawings found?
+    drawings = []
 
     for patent in patent_list:
         for document in patent.documents:
             if "DRAWING" in document.description.upper():
+                print(document)
                 document.download("./downloads/")
-                drawings_found = True
+                drawings.append("./downloads" + document.description.upper())
 
-    return drawings_found
+    return drawings
 
+
+def extract_images(pdf_file):
+    """ Extract all the images from the patent (PDF)"""
+    f = fitz.open(pdf_file)
+    images = []
+
+    # Iterate over PDF pages
+    for page_index in range(len(f)):
+
+        # get the page itself
+        page = f[page_index]
+        image_list = page.getImageList()
+
+        for image_index, img in enumerate(image_list, start=1):
+            xref = img[0]
+
+            base_image = f.extractImage(xref)
+            image_bytes = base_image["image"]
+            image_ext = base_image["ext"]
+
+            tags = ["xref", "base_image", "image_bytes", "ext"]
+            new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
+            images.append(new_image)
+    return images
+
+
+def display(byte_data):
+    """ Convert byte data to a PIL Image object that can be viewed."""
+    return Image.open(BytesIO(byte_data))
