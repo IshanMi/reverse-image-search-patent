@@ -50,29 +50,29 @@ def extract_images(pdf_file):
     """ Extract all the images from the patent (PDF)"""
     try:
         f = fitz.open(pdf_file)
-        images = []
-
-        # Iterate over PDF pages
-        for page_index in range(len(f)):
-
-            # get the page itself
-            page = f[page_index]
-            image_list = page.getImageList()
-
-            for image_index, img in enumerate(image_list, start=1):
-                xref = img[0]
-
-                base_image = f.extractImage(xref)
-                image_bytes = base_image["image"]
-                image_ext = base_image["ext"]
-
-                tags = ["xref", "base_image", "image_bytes", "ext"]
-                new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
-                images.append(new_image)
-        return images
     except RuntimeError:
         print(f'Unable to parse file: {pdf_file}')
         return
+    images = []
+
+    # Iterate over PDF pages
+    for page_index in range(len(f)):
+
+        # get the page itself
+        page = f[page_index]
+        image_list = page.getImageList()
+
+        for image_index, img in enumerate(image_list, start=1):
+            xref = img[0]
+
+            base_image = f.extractImage(xref)
+            image_bytes = base_image["image"]
+            image_ext = base_image["ext"]
+
+            tags = ["xref", "base_image", "image_bytes", "ext"]
+            new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
+            images.append(new_image)
+    return images
 
 
 def display(byte_data):
