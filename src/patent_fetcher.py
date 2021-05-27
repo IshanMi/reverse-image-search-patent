@@ -1,5 +1,6 @@
 import requests
 from patent_client import USApplication
+from typing import List
 
 
 def get_patent(keyword: str):
@@ -22,12 +23,15 @@ def conduct_search(title: str, limit=100):
     return search_results
 
 
-def download_patents(patent_list: list[USApplication]):
+def download_patents(patent_list: List[USApplication]):
     """ Download all the patent drawings that arose from the search to the downloads/folder"""
+    drawings_found = False  # Were any drawings found?
+
     for patent in patent_list:
         for document in patent.documents:
-            if "DRAWING" in document:
+            if "DRAWING" in document.description.upper():
+                document.download("./downloads/")
+                drawings_found = True
 
-
-    pass
+    return drawings_found
 

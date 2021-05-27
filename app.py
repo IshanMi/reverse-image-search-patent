@@ -9,9 +9,9 @@ ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length
 
 
-app = Flask(__name__, template_folder='src/templates')
+app = Flask(__name__, template_folder='./src/templates')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.static_folder = 'src/static'
+app.static_folder = './src/static'
 
 
 def allowed_file(filename: str):
@@ -40,13 +40,12 @@ def upload_file():
     return render_template('home.html')
 
 
-
-
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
+@app.route("/search/")
 @app.route("/search")
 def user_query():
     return render_template('form.html', title="Patent Search")
@@ -59,9 +58,8 @@ def patent_search(patent_title):
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
 
-    return render_template('random.html', category=patent_title,
+    return render_template('search_results.html', category=patent_title,
                            patents=conduct_search(patent_title, limit=10))
-
 
 
 if __name__ == '__main__':

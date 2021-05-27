@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <link type="text/css" rel="stylesheet" href="../static/gradient_background.css">
-    <meta charset="UTF-8">
-    <title> Next-Gen Patent Search</title>
-</head>
+<link href="../static/gradient_background.css" rel="stylesheet" type="text/css">
+<meta charset="UTF-8">
+<title> Next-Gen Patent Search</title>
 <body>
 
 <h1> Reverse Image Search for Patents! </h1>
@@ -16,10 +14,13 @@
 
 {% for p in patents  %}
 <div>
-<span class="title"> {{ p.patent_title }}</span>
+<span class="title"> {{ p.patent_title.lower() }}</span>
 <span class="ID"> {{ p.appl_id }}</span>
 </div>
 {% endfor %}
+
+<p> Would you like to download these patents to perform reverse image search? </p>
+
 
 </body>
 </html>

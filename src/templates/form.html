@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+<link href="../static/gradient_background.css" rel="stylesheet" type="text/css">
 <head>
-    <link rel="stylesheet" href="../static/gradient_background.css">
     <meta charset="UTF-8">
     <title> Patent Search </title>
 </head>
 <body>
 
+<h1> Reverse Image Search for Patents! </h1>
+
+<p> Please enter as many or as few details in the form below. Please be aware that the search functionality currently only works for patents filed through the USPTO. </p>
+
 <form action="../../user_queries.txt" method = "POST">
-    <p>Patent Title <input type = "text" name = "Patent Title" /></p>
-    <p>Patent Author <input type = "text" name = "Patent Author" /></p>
-    <p><input type = "submit" value = "submit" /></p>
+    <p> Patent Title: <input type = "text" name = "Patent Title" /></p>
+    <p> Patent Author: <input type = "text" name = "Patent Author" /></p>
+    <p> Application Status: <input type = "text" name = "Application Status" /></p>
+    <p> Expiration: <input type = "text" name = "Expiration" /></p>
+    <p><input type = "submit" value = "Submit" /></p>
 </form>
 
 </body>
