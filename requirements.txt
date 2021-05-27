@@ -1,4 +1,6 @@
+fitz
 requests
 werkzeug
 flask
 patent_client
+pillow

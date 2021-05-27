@@ -2,6 +2,7 @@ from typing import List
 
 import requests
 import fitz
+import os
 from patent_client import USApplication
 from PIL import Image
 from io import BytesIO
@@ -29,41 +30,49 @@ def conduct_search(title: str, limit=100):
 
 def download_patents(patent_list: List[USApplication]):
     """ Download all the patent drawings that arose from the search to the downloads/folder"""
-    drawings = []
 
     for patent in patent_list:
         for document in patent.documents:
-            if "DRAWING" in document.description.upper():
-                print(document)
-                document.download("./downloads/")
-                drawings.append("./downloads" + document.description.upper())
+            if "DRAWING" in document.description.upper() and "NOTICE" not in document.description.upper():
+                print(f'Downloading - {document.description}')
+                print(os.getcwd())
+                print(os.listdir())
+                try:
+                    document.download("./src/downloads/")
+                except RuntimeError:
+                    print(f'Unable to parse document: {document.description}')
+                    continue
 
-    return drawings
+    return os.listdir('./src/downloads')
 
 
 def extract_images(pdf_file):
     """ Extract all the images from the patent (PDF)"""
-    f = fitz.open(pdf_file)
-    images = []
+    try:
+        f = fitz.open(pdf_file)
+        images = []
 
-    # Iterate over PDF pages
-    for page_index in range(len(f)):
+        # Iterate over PDF pages
+        for page_index in range(len(f)):
 
-        # get the page itself
-        page = f[page_index]
-        image_list = page.getImageList()
+            # get the page itself
+            page = f[page_index]
+            image_list = page.getImageList()
 
-        for image_index, img in enumerate(image_list, start=1):
-            xref = img[0]
+            for image_index, img in enumerate(image_list, start=1):
+                xref = img[0]
 
-            base_image = f.extractImage(xref)
-            image_bytes = base_image["image"]
-            image_ext = base_image["ext"]
+                base_image = f.extractImage(xref)
+                image_bytes = base_image["image"]
+                image_ext = base_image["ext"]
 
-            tags = ["xref", "base_image", "image_bytes", "ext"]
-            new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
-            images.append(new_image)
-    return images
+                tags = ["xref", "base_image", "image_bytes", "ext"]
+                new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
+                images.append(new_image)
+        return images
+    except RuntimeError:
+        print(f'Unable to parse file: {pdf_file}')
+        return
 
 
 def display(byte_data):

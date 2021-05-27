@@ -5,12 +5,14 @@ import os
 from random import choice
 
 UPLOAD_FOLDER = "./uploads"
+DOWNLOAD_FOLDER = "./downloads"
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length
 
 
 app = Flask(__name__, template_folder='./src/templates')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
 app.static_folder = './src/static'
 
 
@@ -69,7 +71,10 @@ def patent_search(patent_title):
         sample_images = []
         for drawing in drawing_files:
             patent_images = extract_images(drawing)
-            sample_images.append(choice(patent_images))
+            if patent_images:
+                sample_images.append(choice(patent_images))
+            else:
+                sample_images.append()
         return render_template('search_results.html', category=patent_title,
                                patets=patent_results, images=sample_images)
     else:
