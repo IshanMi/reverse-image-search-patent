@@ -12,10 +12,11 @@
 
 <p> Here's a few randomly-selected patents that match your search term: "{{ category }}": </p>
 
-{% for p in patents  %}
+{% for index, p in enumerate(patents)  %}
 <div>
 <span class="title"> {{ p.patent_title.lower() }}</span>
 <span class="ID"> {{ p.appl_id }}</span>
+<span class="image"> <img src="{{ images[i].show() }}"></span>
 </div>
 {% endfor %}
 
