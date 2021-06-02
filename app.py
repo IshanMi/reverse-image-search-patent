@@ -7,7 +7,7 @@ from random import choice
 UPLOAD_FOLDER = "./uploads"
 DOWNLOAD_FOLDER = "./downloads"
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
-# Should specify a maximum content length
+# Should specify a maximum content length for file uploads
 
 
 app = Flask(__name__, template_folder='./src/templates')
@@ -60,26 +60,45 @@ def patent_search(patent_title):
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
 
-    # Conduct Patent Search
-    patent_results = conduct_search(patent_title, limit=10)
-
-    # Download patents' prior art
-    drawing_files = download_patents(patent_results)
-
-    # Extract images from patents' prior art
-    if drawing_files:
-        sample_images = []
-        for drawing in drawing_files:
-            patent_images = extract_images(drawing)
-            if patent_images:
-                sample_images.append(choice(patent_images))
-            else:
-                sample_images.append()
-        return render_template('search_results.html', category=patent_title,
-                               patets=patent_results, images=sample_images)
+    # Create sub-folder to store images
+    if " " in patent_title:
+        dir_name = f'./src/downloads/{patent_title.replace(" ", "")}/'
     else:
-        return render_template('search_results.html', category=patent_title,
-                               patents=patent_results)
+        dir_name = f'./src/downloads/{patent_title}/'
+
+    # Make new folder if folder doesn't exist already
+    try:
+        os.makedirs(dir_name)
+    except FileExistsError:
+        print("Folder already exists, continuing.")
+    finally:
+        # Conduct Patent Search
+        patent_results = conduct_search(patent_title, limit=10)
+
+        if patent_results:
+            # Download patent drawings to new folder
+            drawing_files = download_patents(patent_results, destination=dir_name)
+
+            # Extract images from patents' prior art
+            sample_images = []
+            for drawing in drawing_files:
+
+                # Remove all blank spaces in the Patent Title Name
+                title_name = drawing.split("-")[0]
+
+                # Extract all images from the Patent PDF
+                patent_images = extract_images(drawing, destination="./src/static/", title=title_name)
+                if patent_images:
+                    sample_images.append(choice(patent_images))
+                else:
+                    # If no images were extracted, use a stock icon of a patent
+                    sample_images.append("./src/static/patent_image_not_available.png")
+            return render_template('search_results.html', category=patent_title,
+                                   patents=patent_results, images=sample_images)
+        else:
+            print(f'how in the world did we wind up here?!?!? patents={len(patent_results)}')
+            return render_template('search_results.html', category=patent_title, patents=patent_results,
+                                   images=["./src/static/patent_image_not_available.png"] * len(patent_results))
 
 
 if __name__ == '__main__':

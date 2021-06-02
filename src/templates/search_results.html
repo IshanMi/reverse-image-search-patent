@@ -12,12 +12,16 @@
 
 <p> Here's a few randomly-selected patents that match your search term: "{{ category }}": </p>
 
-{% for index, p in enumerate(patents)  %}
-<div>
-<span class="title"> {{ p.patent_title.lower() }}</span>
-<span class="ID"> {{ p.appl_id }}</span>
-<span class="image"> <img src="{{ images[i].show() }}"></span>
+
+{% for i in range(patents|length)  %}
+<span>
+    <div>
+    <span class="ID"> <h3> USPTO #{{ patents[i].appl_id }} </h3></span>
 </div>
+<div>
+    <span class="image"> <img src="../static/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"> </span>
+</div>
+</span>
 {% endfor %}
 
 <p> Would you like to download these patents to perform reverse image search? </p>
