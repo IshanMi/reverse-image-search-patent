@@ -1,9 +1,12 @@
-from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
-from src.patent_fetcher import conduct_search, download_patents, extract_images, display
-from werkzeug.utils import secure_filename
 import os
-from random import choice
+
+from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+
+from src.patent_fetcher import (
+    conduct_search, download_patents,
+    get_sample_images, extract_images, display)
 
 load_dotenv()
 
@@ -88,19 +91,9 @@ def patent_search(patent_title):
     drawing_files = download_patents(patent_results, destination=dir_name)
 
     # Extract images from patents' prior art
-    sample_images = []
-    for drawing in drawing_files:
+    sample_images = get_sample_images(
+        drawing_files, app.static_folder)
 
-        # Remove all blank spaces in the Patent Title Name
-        title_name = drawing.split("-")[0]
-
-        # Extract all images from the Patent PDF
-        patent_images = extract_images(drawing, destination=app.static_folder, title=title_name)
-        if patent_images:
-            sample_images.append(choice(patent_images))
-        else:
-            # If no images were extracted, use a stock icon of a patent
-            sample_images.append(f"{app.static_folder}/patent_image_not_available.png")
     return render_template('search_results.html', category=patent_title,
                             patents=patent_results, images=sample_images)
 
