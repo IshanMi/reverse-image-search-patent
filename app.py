@@ -14,7 +14,8 @@ ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length for file uploads
 
 
-app = Flask(__name__, template_folder='./src/templates')
+template_folder = os.getenv("TEMPLATES_FOLDER")
+app = Flask(__name__, template_folder=template_folder)
 app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
 app.config['DOWNLOAD_FOLDER'] = os.getenv("DOWNLOAD_FOLDER")
 app.static_folder = os.getenv("STATIC_FOLDER")
