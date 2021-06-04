@@ -3,17 +3,19 @@ from src.patent_fetcher import conduct_search, download_patents, extract_images,
 from werkzeug.utils import secure_filename
 import os
 from random import choice
+from dotenv import load_dotenv
 
-UPLOAD_FOLDER = "./uploads"
-DOWNLOAD_FOLDER = "./downloads"
+load_dotenv()
+
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length for file uploads
 
 
 app = Flask(__name__, template_folder='./src/templates')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['DOWNLOAD_FOLDER'] = DOWNLOAD_FOLDER
-app.static_folder = './src/static'
+app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
+app.config['DOWNLOAD_FOLDER'] = os.getenv("DOWNLOAD_FOLDER")
+app.static_folder = os.getenv("STATIC_FOLDER")
+
 
 
 def allowed_file(filename: str):
