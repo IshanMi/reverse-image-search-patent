@@ -1,3 +1,4 @@
+from pathlib import Path
 import os
 
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
@@ -12,7 +13,6 @@ load_dotenv()
 
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length for file uploads
-
 
 template_folder = os.getenv("TEMPLATES_FOLDER")
 app = Flask(__name__, template_folder=template_folder)
@@ -67,10 +67,8 @@ def patent_search(patent_title):
     """
 
     # Create sub-folder to store images
-    if " " in patent_title:
-        dir_name = f'./src/downloads/{patent_title.replace(" ", "")}/'
-    else:
-        dir_name = f'./src/downloads/{patent_title}/'
+    title = patent_title.replace(" ", "")
+    dir_name = str(Path(app.config['DOWNLOAD_FOLDER']) / title)
 
     # Make new folder if folder doesn't exist already
     try:
