@@ -80,8 +80,9 @@ def patent_search(patent_title):
     if not patent_results:
         # TODO: if this is unexpected use a flask abort(400) or something?
         print(f'how in the world did we wind up here?!?!? patents={len(patent_results)}')
+        images = [f"{app.static_folder}/patent_image_not_available.png"] * len(patent_results)
         return render_template('search_results.html', category=patent_title, patents=patent_results,
-                                images=["./src/static/patent_image_not_available.png"] * len(patent_results))
+                                images=images)
 
     # Download patent drawings to new folder
     drawing_files = download_patents(patent_results, destination=dir_name)
@@ -94,12 +95,12 @@ def patent_search(patent_title):
         title_name = drawing.split("-")[0]
 
         # Extract all images from the Patent PDF
-        patent_images = extract_images(drawing, destination="./src/static/", title=title_name)
+        patent_images = extract_images(drawing, destination=app.static_folder, title=title_name)
         if patent_images:
             sample_images.append(choice(patent_images))
         else:
             # If no images were extracted, use a stock icon of a patent
-            sample_images.append("./src/static/patent_image_not_available.png")
+            sample_images.append(f"{app.static_folder}/patent_image_not_available.png")
     return render_template('search_results.html', category=patent_title,
                             patents=patent_results, images=sample_images)
 
