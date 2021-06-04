@@ -59,24 +59,24 @@ def user_query():
     return render_template('form.html', title="Patent Search")
 
 
+def _create_folder(dir_name):
+    try:
+        os.makedirs(dir_name)
+    except FileExistsError:
+        print("Folder already exists, continuing.")
+
+
 @app.route("/search/<string:patent_title>")
 def patent_search(patent_title):
     """ Let the user search for a patent by title directly
 
     Need to figure out how to implement two word searches, e.g. automotive camera
     """
-
-    # Create sub-folder to store images
     title = patent_title.replace(" ", "")
     dir_name = str(Path(app.config['DOWNLOAD_FOLDER']) / title)
 
-    # Make new folder if folder doesn't exist already
-    try:
-        os.makedirs(dir_name)
-    except FileExistsError:
-        print("Folder already exists, continuing.")
+    _create_folder(dir_name)
 
-    # Conduct Patent Search
     patent_results = conduct_search(patent_title, limit=10)
 
     if not patent_results:
