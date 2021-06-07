@@ -1,4 +1,5 @@
 from typing import List
+from random import choice
 
 import requests
 import fitz
@@ -42,6 +43,21 @@ def download_patents(patent_list: List[USApplication], destination: str):
                     continue
     # Return all saved PDF documents, with their relative path
     return [f'{destination}{i}' for i in os.listdir(destination) if i[-4:] == '.pdf']
+
+
+def get_sample_images(drawing_files, destination):
+    sample_images = []
+    for drawing in drawing_files:
+        # Remove all blank spaces in the Patent Title Name
+        title_name = drawing.split("-")[0]
+        # Extract all images from the Patent PDF
+        patent_images = extract_images(drawing, destination=destination, title=title_name)
+        if patent_images:
+            sample_images.append(choice(patent_images))
+        else:
+            # If no images were extracted, use a stock icon of a patent
+            sample_images.append(f"{destination}/patent_image_not_available.png")
+    return sample_images
 
 
 def extract_images(pdf_file, destination: str, title: str):
