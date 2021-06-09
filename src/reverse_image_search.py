@@ -71,27 +71,33 @@ def extract_features(img_folder):
             feature = extractor(img)
         features.append(feature.flatten().cpu().detach().numpy())
 
-    features = numpy.array(features)
-    return features
+    return numpy.array(features)
 
 
-def get_cluster_model(feature_list, n=15):
-    pca = PCA(n_components=n)
-    pca.fit(feature_list)
-    compressed_features = pca.transform(feature_list)
+def get_cluster_model(feature_list, n=5, pca=False):
+    if pca:
+        pca = PCA(n_components=n)
+        pca.fit(feature_list)
+
+        # This is the compressed feature list
+        feature_list = pca.transform(feature_list)
 
     # Nearest neighbours algorithm
-    neighbours = NearestNeighbors(n_neighbors=5, algorithm='ball_tree', metric='euclidean').fit(compressed_features)
+    neighbours = NearestNeighbors(n_neighbors=5, algorithm='ball_tree', metric='euclidean')
+    neighbours.fit(feature_list)
     return neighbours
 
 
-def predict():
-    patent_features = extract_features('src/static')
+def predict(dirname='src/static'):
+    # Extract features from all patent images
+    patent_features = extract_features(dirname)
 
+    # Designate query, reshape to keep correct # of features
+    query = patent_features[-1].reshape(1, patent_features.shape[1])
+
+    # Train model with training data (exclude query)
     model = get_cluster_model(patent_features[:-1])
 
-    # Last entry is the query
-    query = patent_features[-1]
     distances, indices = model.kneighbors(query)
     return distances, indices
 
