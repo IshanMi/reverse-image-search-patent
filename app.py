@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from src.patent_fetcher import (conduct_search, download_patents,
                                 get_sample_images)
 
+from src.reverse_image_search import identify_results
+
 load_dotenv()
 
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
@@ -40,7 +42,11 @@ def upload_file():
             flash('No selected file')
             return redirect(request.url)
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+
+            # I changed this for now
+            # filename = secure_filename(file.filename)
+
+            filename = "search_image.png"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
@@ -52,10 +58,16 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
-@app.route("/search/")
-@app.route("/search")
+@app.route("/search/", methods=["POST", "GET"])
+@app.route("/search", methods=["POST", "GET"])
 def user_query():
-    return render_template('form.html', title="Patent Search")
+    if request.method == "GET":
+        return render_template('form.html', title="Patent Search")
+    else:
+        title = request.form["title"]
+        author = request.form["author"]
+        status = request.form["status"]
+        return redirect(url_for("patent_search", patent_title=title, author=author, status=status))
 
 
 def _create_folder(dir_name):
@@ -66,7 +78,7 @@ def _create_folder(dir_name):
 
 
 @app.route("/search/<string:patent_title>")
-def patent_search(patent_title):
+def patent_search(patent_title, author=False, status=False):
     """ Let the user search for a patent by title directly
 
     Need to figure out how to implement two word searches,
@@ -77,7 +89,7 @@ def patent_search(patent_title):
 
     _create_folder(dir_name)
 
-    patent_results = conduct_search(patent_title, limit=10)
+    patent_results = conduct_search(patent_title, lim=10)
 
     if not patent_results:
         return render_template('search_results.html', category=patent_title,
@@ -92,6 +104,14 @@ def patent_search(patent_title):
     return render_template('search_results.html', category=patent_title,
                            patents=patent_results, images=sample_images,
                            error=None)
+
+
+@app.route("/done")
+def most_similar_patent():
+    print("Computing Most Similar Patent")
+    image_list = [i for i in os.listdir("src/static/images") if i[-4:] == ".png" if "image" not in i]
+    imgs, apps = identify_results(image_list)
+    return render_template("results.html", images=imgs, applications=apps)
 
 
 if __name__ == '__main__':

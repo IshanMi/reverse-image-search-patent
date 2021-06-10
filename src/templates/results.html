@@ -10,26 +10,23 @@
 <marquee> <i> "What remains of you is not what is etched into stone, but what is woven into the hearts of
     Man." </i></marquee>
 
-<p> Here's a few randomly-selected patents that match your search term: "{{ category }}": </p>
-
+<p> These are the patents that most closely match your image: </p>
+<span class="image"> <img src="../static/test_image.png"></span>
 
 {% if error %}
   {{ error }}
 {% else %}
-  {% for i in range(patents|length)  %}
+  {% for i in range(images|length)  %}
   <span>
       <div>
-      <span class="ID"> <h3> USPTO #{{ patents[i].appl_id }} </h3></span>
+      <span class="ID"> <h3> USPTO #{{ applications[i] }} </h3></span>
   </div>
   <div>
-      <span class="image"> <img src="../static/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"> </span>
+      <span class="image"> <img src="../static/images/{{ images[i]}}" alt="Patent Art" width="400" height="500"> </span>
   </div>
   </span>
   {% endfor %}
 {% endif %}
-
-<p> Would you like to download these patents to perform reverse image search? </p>
-
 
 </body>
 </html>

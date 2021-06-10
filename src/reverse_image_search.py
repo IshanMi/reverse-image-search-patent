@@ -19,7 +19,7 @@ def check_working():
 
 
 def load_and_preprocess(img_folder):
-    """ Since ResNet is trained on 224x224 RGB images, we need to resize the images to accomodate for that"""
+    """ Since ResNet is trained on 224x224 RGB images, we need to resize the images to accommodate for that"""
     target_size = (224, 224, 3)
 
     # This is not ideal because of the whitespace around each patent drawing
@@ -101,4 +101,17 @@ def predict(dirname='src/static'):
     distances, indices = model.kneighbors(query)
     return distances, indices
 
+
+def identify_results(images_list):
+    # Run prediction model
+    _, indices = predict()
+
+    # Identify results
+    image_results = []
+    app_ids = []
+    for index in indices[0]:
+        image = images_list[index]
+        image_results.append(image)
+        app_ids.append(image.split("_")[0])
+    return image_results, app_ids
 

@@ -18,11 +18,16 @@ def get_patent(keyword: str):
     return
 
 
-def conduct_search(title: str, limit=100):
+def conduct_search(title: str, author=False, status=False, expiry=False, lim=100):
     """ Search for a patent using the patent_client module. """
-    search_results = USApplication.objects.filter(patent_title=title.upper())
-    if len(search_results) > limit:
-        search_results = search_results[:limit]
+    search_results = USApplication.objects.filter(patent_title=title.upper()).limit(lim)
+
+    if author:
+        search_results = search_results.filter(first_named_applicant=author)
+    if status:
+        search_results = search_results.filter(app_status=status)
+    if expiry:
+        search_results = search_results.filter()
 
     return search_results
 
@@ -67,41 +72,59 @@ def extract_images(pdf_file, destination: str, title: str):
         with fitz.open(pdf_file) as f:
             images = []
 
-            # Iterate over PDF pages
-            for page_index in range(len(f)):
+            # Check if first and last image from this patent are downloaded
+            page_start = 0
+            page_end = len(f) - 1
 
-                # get the page itself
-                page = f[page_index]
-                image_list = page.getImageList()
+            first_img = f'{title.split("/")[-1][:-1]}_{page_start}.png'
+            last_img = f'{title.split("/")[-1][:-1]}_{page_end}.png'
 
-                for image_index, img in enumerate(image_list, start=1):
-                    xref = img[0]
+            if first_img in os.listdir(f'{destination}/images') and last_img in os.listdir(f'{destination}/images'):
+                print("Patent already parsed, skipping.")
 
-                    base_image = f.extractImage(xref)
-                    image_bytes = base_image["image"]
-                    image_ext = base_image["ext"]
+                # If they are, just save the image names to the array and move on to the next patent
+                for page_index in range(page_end):
+                    fname = f'{title.split("/")[-1][:-1]}_{page_index}.png'
+                    images.append(f'{destination}/images/{fname}')
+            else:
+                # Iterate over PDF pages
+                for page_index in range(page_end):
 
-                    """ This code isn't being used anymore but it's left here incase it needs to be brought back
-                    tags = ["xref", "base_image", "image_bytes", "ext"]
-                    new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
-                    """
+                    # get the page itself
+                    page = f[page_index]
+                    image_list = page.getImageList()
 
-                    # Prepare image name
-                    fname = f'{title.split("/")[-1][:-1]}_{image_index}.{image_ext}'
-                    abspath = os.path.join(os.path.abspath(destination), fname)
+                    print(f'Looking at new page: Page #{page_index}/{len(f)}')
+                    for img in image_list:
 
-                    # Because Windows
-                    if "\\" in abspath:
-                        abspath = abspath.replace("\\", "/")
+                        # Iterate over every image on that page
+                        xref = img[0]
 
-                    # Save images if not already in directory
-                    if fname not in os.listdir(destination):
-                        with Image.open(BytesIO(image_bytes)) as im:
-                            im.save(abspath)
-                    else:
-                        print(f'Using cached image: {fname}')
+                        base_image = f.extractImage(xref)
+                        image_bytes = base_image["image"]
+                        image_ext = base_image["ext"]
 
-                    images.append(fname)
+                        """ This code isn't being used anymore but it's left here incase it needs to be brought back
+                        tags = ["xref", "base_image", "image_bytes", "ext"]
+                        new_image = dict(zip(tags, [xref, base_image, image_bytes, image_ext]))
+                        """
+
+                        # Prepare image name
+                        fname = f'{title.split("/")[-1][:-1]}_{page_index}.{image_ext}'
+                        abspath = os.path.join(os.path.abspath(destination), fname)
+
+                        # Because Windows
+                        if "\\" in abspath:
+                            abspath = abspath.replace("\\", "/")
+
+                        # Save images if not already in directory
+                        if fname not in os.listdir(destination):
+                            with Image.open(BytesIO(image_bytes)) as im:
+                                im.save(abspath)
+                        else:
+                            print(f'Using cached image: {fname}')
+
+                        images.append(fname)
         return images
 
     except RuntimeError:
