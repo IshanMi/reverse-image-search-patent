@@ -10,22 +10,27 @@
 <marquee> <i> "What remains of you is not what is etched into stone, but what is woven into the hearts of
     Man." </i></marquee>
 
-<p> These are the patents that most closely match your image: </p>
+<p> This  was what you searched for: </p>
 <span class="image"> <img src="../static/test_image.png"></span>
+
+<p> And these were the closest search results found: </p>
 
 {% if error %}
   {{ error }}
 {% else %}
+    <table style="width: 100%">
   {% for i in range(images|length)  %}
-  <span>
-      <div>
-      <span class="ID"> <h3> USPTO #{{ applications[i] }} </h3></span>
-  </div>
-  <div>
-      <span class="image"> <img src="../static/images/{{ images[i]}}" alt="Patent Art" width="400" height="500"> </span>
-  </div>
-  </span>
+      {% if i % 2 == 0 %}
+          <tr>
+          <th> USPTO #{{ applications[i] }}</th>
+          <td> <img src="../static/images/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
+      {% else %}
+          <th> USPTO #{{ applications[i] }}</th>
+          <td> <img src="../static/images/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
+          </tr>
+      {% endif %}
   {% endfor %}
+    </table>
 {% endif %}
 
 </body>
