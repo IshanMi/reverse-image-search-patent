@@ -3,7 +3,6 @@
 <link href="../static/gradient_background.css" rel="stylesheet" type="text/css">
 <meta charset="UTF-8">
 <title> Next-Gen Patent Search</title>
-<body>
 
 <h1 style="text-align: center"> Reverse Image Search for Patents! </h1>
 
@@ -16,20 +15,25 @@
 {% if error %}
   {{ error }}
 {% else %}
+    <table style="width: 100%">
   {% for i in range(patents|length)  %}
-  <span>
-      <div>
-      <span class="ID"> <h3> USPTO #{{ patents[i].appl_id }} </h3></span>
-  </div>
-  <div>
-      <span class="image"> <img src="../static/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"> </span>
-  </div>
-  </span>
+      {% if i % 3 == 0 %}
+          <tr>
+          <th> USPTO #{{ patents[i].appl_id }}</th>
+          <td> <img src="../static/images/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"></td>
+      {% elif i % 3 == 2 %}
+          <th> USPTO #{{ patents[i].appl_id }}</th>
+          <td> <img src="../static/images/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"></td>
+          </tr>
+      {% else %}
+          <th> USPTO #{{ patents[i].appl_id }}</th>
+          <td> <img src="../static/images/{{ patents[i].appl_id }}_1.png" alt="Patent Art" width="400" height="500"></td>
+      {% endif %}
   {% endfor %}
+    </table>
 {% endif %}
 
-<p> Would you like to download these patents to perform reverse image search? </p>
-
+<p> Please click <a href="{{ url_for('most_similar_patent') }}"> here </a> to see the results that match most closely with your sketch. </p>
 
 </body>
 </html>

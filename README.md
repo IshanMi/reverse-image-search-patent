@@ -29,14 +29,8 @@ Terragalleria
 
 TO DO:
 
-> Implementing the second API to download patents locally
+> Deploy!
+> Improve the KNN algorithm
+> Implement PCA correctly
+> Make the website look better
 
-> Setting up a searchable database for these downloaded patents
-
-> Writing a class where each patent is stored as an instance
-
-As a bonus:
-
-> Rendering HTML to make the website look beautiful
-
-> deploying it to an actual url, maybe using Github Pages
