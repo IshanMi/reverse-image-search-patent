@@ -100,10 +100,10 @@ def patent_search(patent_title, author=False, status=False):
                                patents=[], error="No patents found")
 
     # Download patent drawings to new folder
-    drawing_files = download_patents(patent_results, destination=dir_name)
+    drawing_files = download_patents.delay(patent_results, destination=dir_name)
 
     # Extract images from patents' prior art
-    sample_images = get_sample_images(drawing_files, app.static_folder)
+    sample_images = get_sample_images.delay(drawing_files, app.static_folder)
 
     return render_template('search_results.html', category=patent_title,
                            patents=patent_results, images=sample_images,

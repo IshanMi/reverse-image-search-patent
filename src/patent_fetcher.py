@@ -1,21 +1,16 @@
 from typing import List
 from random import choice
 
-import requests
 import fitz
 import os
 from patent_client import USApplication
 from PIL import Image
 from io import BytesIO
+from celery import Celery
 
-
-def get_patent(keyword: str):
-    """ Previous/old API"""
-    title_search = f'{{"patent_title":"{keyword}"}}'
-    query = f'https://api.patentsview.org/patents/query?q={{"_text_any":{title_search}}}'
-    response = requests.get(query)
-    print(response.json()['total_patent_count'])
-    return
+celery = Celery(__name__)
+celery.conf.broker_url = os.getenv("BROKER_URL")
+celery.conf.result_backend = os.getenv("BACKEND_URL")
 
 
 def conduct_search(title: str, author=False, status=False, expiry=False, lim=100):
@@ -32,6 +27,7 @@ def conduct_search(title: str, author=False, status=False, expiry=False, lim=100
     return search_results
 
 
+@celery.task(name="download_patents")
 def download_patents(patent_list: List[USApplication], destination: str):
     """ Download all the patent drawings that arose from the search to the downloads/folder"""
     if destination[-1] != "/":
@@ -50,6 +46,7 @@ def download_patents(patent_list: List[USApplication], destination: str):
     return [f'{destination}{i}' for i in os.listdir(destination) if i[-4:] == '.pdf']
 
 
+@celery.task(name="get_sample_images")
 def get_sample_images(drawing_files, destination):
     sample_images = []
     for drawing in drawing_files:
