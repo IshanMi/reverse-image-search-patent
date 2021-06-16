@@ -11,7 +11,7 @@
     Man." </i></marquee>
 
 <p> This  was what you searched for: </p>
-<span class="image"> <img src="../static/test_image.png"></span>
+<span class="image"> <img src="{{ url_for('static', filename='test_image.png') }}"></span>
 
 <p> And these were the closest search results found: </p>
 
@@ -23,10 +23,10 @@
       {% if i % 2 == 0 %}
           <tr>
           <th> USPTO #{{ applications[i] }}</th>
-          <td> <img src="../static/images/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
+          <td> <img src="{{ images_folder }}/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
       {% else %}
           <th> USPTO #{{ applications[i] }}</th>
-          <td> <img src="../static/images/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
+          <td> <img src="{{ images_folder }}/{{ images[i] }}" alt="Patent Art" width="400" height="500"></td>
           </tr>
       {% endif %}
   {% endfor %}
