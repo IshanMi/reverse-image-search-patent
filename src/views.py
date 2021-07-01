@@ -3,28 +3,16 @@ import os
 
 from flask import (Flask, render_template, flash, request,
                    redirect, url_for, send_from_directory)
-from src.flask_celery import make_celery
-from dotenv import load_dotenv
 
 from src.patent_fetcher import (conduct_search, download_patents,
                                 get_sample_images)
 
 from src.reverse_image_search import identify_results
-
-load_dotenv()
+from src.app import app
 
 ALLOWED_EXTENSIONS = {'png', 'bmp', 'tif', 'jpg', 'jpeg'}
 # Should specify a maximum content length for file uploads
 
-template_folder = os.getenv("TEMPLATES_FOLDER")
-app = Flask(__name__, template_folder=template_folder)
-app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
-app.config['DOWNLOAD_FOLDER'] = os.getenv("DOWNLOAD_FOLDER")
-app.config['CELERY_BROKER_URL'] = os.getenv("BROKER_URL")
-app.config['CELERY_BACKEND_URL'] = os.getenv("BACKEND_URL")
-app.config['IMAGES_FOLDER'] = os.getenv("IMAGES_FOLDER")
-app.static_folder = os.getenv("STATIC_FOLDER")
-celery = make_celery(app)
 
 
 def allowed_file(filename: str):
@@ -100,10 +88,11 @@ def patent_search(patent_title, author=False, status=False):
                                patents=[], error="No patents found")
 
     # Download patent drawings to new folder
-    drawing_files = download_patents.delay(patent_results, destination=dir_name)
+    drawing_files = download_patents.delay(destination=dir_name,
+                                           patent_title=patent_title)
 
     # Extract images from patents' prior art
-    sample_images = get_sample_images.delay(drawing_files, app.static_folder)
+    sample_images = get_sample_images.delay(drawing_files.ready(), app.static_folder)
 
     return render_template('search_results.html', category=patent_title,
                            patents=patent_results, images=sample_images,
