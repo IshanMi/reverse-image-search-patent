@@ -2,7 +2,8 @@ __pycache__
 **.pyc
 venv
 src/reference_patents/
-src/static/*
-uploads/*
-downloads/*
+**static
+**uploads
+**downloads
 .env
+*.rdb
