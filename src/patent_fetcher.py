@@ -8,9 +8,9 @@ from PIL import Image
 from io import BytesIO
 from celery import Celery
 
-celery = Celery(__name__)
-celery.conf.broker_url = os.getenv("BROKER_URL")
-celery.conf.result_backend = os.getenv("BACKEND_URL")
+from src.flask_celery import make_celery
+
+celery = make_celery()
 
 
 def conduct_search(title: str, author=False, status=False, expiry=False, lim=100):
@@ -28,9 +28,14 @@ def conduct_search(title: str, author=False, status=False, expiry=False, lim=100
 
 
 @celery.task(name="download_patents")
-def download_patents(patent_list: List[USApplication], destination: str):
+def download_patents(destination: str,
+                     patent_list: List[USApplication] = None,
+                     patent_title: str = None):
     """ Download all the patent drawings that arose from the search to the downloads/folder"""
-    if destination[-1] != "/":
+    if patent_list is None and patent_title is not None:
+        patent_list = conduct_search(patent_title, lim=10)
+
+    if not destination.endswith("/"):
         destination += "/"
 
     for idx, patent in enumerate(patent_list, start=1):
